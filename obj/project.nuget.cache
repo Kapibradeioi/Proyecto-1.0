@@ -1,0 +1,10 @@
+{
+  "version": 2,
+  "dgSpecHash": "op/vYnc6T6U=",
+  "success": true,
+  "projectFilePath": "/home/kapibara/mio/prueba consola/prueba/prueba.csproj",
+  "expectedPackageFiles": [
+    "/home/kapibara/.nuget/packages/spectre.console/0.49.1/spectre.console.0.49.1.nupkg.sha512"
+  ],
+  "logs": []
+}
