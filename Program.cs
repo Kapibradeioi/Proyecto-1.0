@@ -246,6 +246,13 @@ class MultiplayerMazeGame
                         break; // Terminar el bucle de movimientos
                     }
                 }
+
+                // Desactivar la habilidad de esquivar trampas al final del turno
+                if (fichasJugadores[i].Nombre == "Ardilla" && fichasJugadores[i].EsquivandoTrampas)
+                {
+                    fichasJugadores[i].EsquivandoTrampas = false;
+                    AnsiConsole.MarkupLine($"[bold yellow]¡{fichasJugadores[i].Nombre} ya no está esquivando trampas![/]");
+                }
             }
         }
     }
