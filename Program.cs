@@ -1,4 +1,5 @@
 ﻿using System;
+using Spectre.Console;
 
 class MultiplayerMazeGame
 {
@@ -14,7 +15,67 @@ class MultiplayerMazeGame
 
     static void Main()
     {
-        Console.Write("Seleccione un número del 2 al 4 (cantidad de jugadores): ");
+        MostrarMenuPrincipal();
+    }
+
+    static void MostrarMenuPrincipal()
+    {
+        while (true)
+        {
+            Console.Clear();
+
+            // Título grande "UN BOSQUE MENOS" con estilo
+            AnsiConsole.Write(
+                new FigletText("UN BOSQUE MENOS")
+                    .Color(Color.Green) // Color del título
+            );
+
+            // Subtítulo "Menú"
+            AnsiConsole.MarkupLine("[bold yellow]Menú[/]"); // Subtítulo en amarillo y negrita
+
+            // Opciones del menú
+            var opcion = MostrarMenu("Seleccione una opción:", new[] { "Jugar", "Leer la historia", "Salir" });
+
+            switch (opcion)
+            {
+                case "Jugar":
+                    IniciarJuego();
+                    break;
+                case "Leer la historia":
+                    MostrarHistoria();
+                    break;
+                case "Salir":
+                    AnsiConsole.MarkupLine("[bold red]¡Gracias por jugar! Saliendo...[/]");
+                    return;
+            }
+        }
+    }
+
+    static void MostrarHistoria()
+    {
+        Console.Clear();
+
+        // Título de la historia
+        AnsiConsole.Write(
+            new FigletText("Historia")
+                .Color(Color.Blue) // Color del título
+        );
+
+        // Contenido de la historia
+        AnsiConsole.MarkupLine("[bold]En un bosque lleno de vida, animales como capibaras, ardillas, zorros y vacas viven felices.[/]");
+        AnsiConsole.MarkupLine("[bold]Sin embargo, los humanos están destruyendo su hábitat natural.[/]");
+        AnsiConsole.MarkupLine("[bold]Los animales deben escapar del laberinto antes de que sea demasiado tarde.[/]");
+        AnsiConsole.MarkupLine("[bold]¡Únete a la aventura y ayuda a estos animales a encontrar la salida![/]");
+
+        // Botón para volver al menú
+        AnsiConsole.MarkupLine("\n[bold yellow]Presione cualquier tecla para volver al menú principal...[/]");
+        Console.ReadKey();
+    }
+
+    static void IniciarJuego()
+    {
+        Console.Clear();
+        AnsiConsole.MarkupLine("[bold green]Seleccione un número del 2 al 4 (cantidad de jugadores):[/]");
         numPlayers = Math.Clamp(int.Parse(Console.ReadLine()), 2, 4);
 
         maze = new char[height, width];
@@ -88,26 +149,27 @@ class MultiplayerMazeGame
         fichasJugadores = new Ficha[numPlayers];
         players = new (int, int)[numPlayers];
 
-        Console.WriteLine("Seleccione sus fichas:");
+        AnsiConsole.MarkupLine("[bold green]Seleccione sus fichas:[/]");
         for (int i = 0; i < numPlayers; i++)
         {
-            Console.WriteLine($"Jugador {i + 1}:");
-            Console.WriteLine("1. Capibara (Habilidad: Cavar túnel)");
-            Console.WriteLine("2. Ardilla (Habilidad: Esquivar trampas)");
-            Console.WriteLine("3. Zorro (Habilidad: Mover otras fichas)");
-            Console.WriteLine("4. Vaca (Habilidad: Destruir trampas)");
-            Console.WriteLine("5. Mono (Habilidad: Caminar 2 pasos extra)");
-            Console.WriteLine("6. Koala (Habilidad: Paralizar a otro jugador)");
-            int opcion = int.Parse(Console.ReadLine());
+            AnsiConsole.MarkupLine($"[bold]Jugador {i + 1}:[/]");
+            var opcion = MostrarMenu("Elija una ficha:", new[] {
+                "Capibara (Habilidad: Cavar túnel)",
+                "Ardilla (Habilidad: Esquivar trampas)",
+                "Zorro (Habilidad: Mover otras fichas)",
+                "Vaca (Habilidad: Destruir trampas)",
+                "Mono (Habilidad: Caminar 2 pasos extra)",
+                "Koala (Habilidad: Paralizar a otro jugador)"
+            });
 
             fichasJugadores[i] = opcion switch
             {
-                1 => new Ficha('C', "Capibara", "Cavar túnel", 3),
-                2 => new Ficha('A', "Ardilla", "Esquivar trampas", 3),
-                3 => new Ficha('Z', "Zorro", "Mover otras fichas", 3),
-                4 => new Ficha('V', "Vaca", "Destruir trampas", 3),
-                5 => new Ficha('M', "Mono", "Caminar 2 pasos extra", 3),
-                6 => new Ficha('K', "Koala", "Paralizar a otro jugador", 3),
+                "Capibara (Habilidad: Cavar túnel)" => new Ficha('C', "Capibara", "Cavar túnel", 3),
+                "Ardilla (Habilidad: Esquivar trampas)" => new Ficha('A', "Ardilla", "Esquivar trampas", 3),
+                "Zorro (Habilidad: Mover otras fichas)" => new Ficha('Z', "Zorro", "Mover otras fichas", 3),
+                "Vaca (Habilidad: Destruir trampas)" => new Ficha('V', "Vaca", "Destruir trampas", 3),
+                "Mono (Habilidad: Caminar 2 pasos extra)" => new Ficha('M', "Mono", "Caminar 2 pasos extra", 3),
+                "Koala (Habilidad: Paralizar a otro jugador)" => new Ficha('K', "Koala", "Paralizar a otro jugador", 3),
                 _ => throw new Exception("Opción no válida")
             };
 
@@ -127,109 +189,31 @@ class MultiplayerMazeGame
             {
                 if (fichasJugadores[i].EstaParalizado)
                 {
-                    Console.WriteLine($"¡{fichasJugadores[i].Nombre} está paralizado y pierde su turno!");
+                    AnsiConsole.MarkupLine($"[bold red]¡{fichasJugadores[i].Nombre} está paralizado y pierde su turno![/]");
                     fichasJugadores[i].EstaParalizado = false; // Restablecer el estado
                     continue; // Saltar el turno
                 }
 
                 int movimientos = rand.Next(4, 11); // Movimientos aleatorios entre 4 y 10
-                Console.WriteLine($"Turno del Jugador {i + 1} ({fichasJugadores[i].Nombre})");
-                Console.WriteLine($"Movimientos disponibles: {movimientos}");
-                Console.WriteLine($"Habilidad: {fichasJugadores[i].Habilidad}");
+                AnsiConsole.MarkupLine($"[bold]Turno del Jugador {i + 1} ({fichasJugadores[i].Nombre})[/]");
+                AnsiConsole.MarkupLine($"[bold]Movimientos disponibles: {movimientos}[/]");
+                AnsiConsole.MarkupLine($"[bold]Habilidad: {fichasJugadores[i].Habilidad}[/]");
 
                 // Verificar si la habilidad está en cooldown
                 if (fichasJugadores[i].CooldownActual > 0)
                 {
-                    Console.WriteLine($"Habilidad en cooldown. Turnos restantes: {fichasJugadores[i].CooldownActual}");
+                    AnsiConsole.MarkupLine($"[bold yellow]Habilidad en cooldown. Turnos restantes: {fichasJugadores[i].CooldownActual}[/]");
                 }
 
                 // Usar habilidad (si no está en cooldown)
                 if (fichasJugadores[i].CooldownActual == 0)
                 {
-                    // Usar habilidad del Capibara
-                    if (fichasJugadores[i].Nombre == "Capibara")
+                    var usarHabilidad = MostrarMenu("¿Deseas usar tu habilidad?", new[] { "Sí", "No" });
+
+                    if (usarHabilidad == "Sí")
                     {
-                        Console.Write("¿Deseas usar tu habilidad para cavar un túnel? (S/N): ");
-                        char usarHabilidad = char.ToUpper(Console.ReadKey().KeyChar);
-                        Console.WriteLine();
-
-                        if (usarHabilidad == 'S')
-                        {
-                            UsarHabilidadCapibara(i);
-                            fichasJugadores[i].CooldownActual = fichasJugadores[i].Cooldown; // Iniciar cooldown
-                        }
-                    }
-
-                    // Usar habilidad de la Ardilla
-                    if (fichasJugadores[i].Nombre == "Ardilla")
-                    {
-                        Console.Write("¿Deseas usar tu habilidad para esquivar trampas? (S/N): ");
-                        char usarHabilidad = char.ToUpper(Console.ReadKey().KeyChar);
-                        Console.WriteLine();
-
-                        if (usarHabilidad == 'S')
-                        {
-                            fichasJugadores[i].EsquivandoTrampas = true; // Activar la habilidad
-                            fichasJugadores[i].CooldownActual = fichasJugadores[i].Cooldown; // Iniciar cooldown
-                            Console.WriteLine($"¡{fichasJugadores[i].Nombre} activó su habilidad para esquivar trampas durante este turno!");
-                        }
-                    }
-
-                    // Usar habilidad del Zorro
-                    if (fichasJugadores[i].Nombre == "Zorro")
-                    {
-                        Console.Write("¿Deseas usar tu habilidad para mover otra ficha? (S/N): ");
-                        char usarHabilidad = char.ToUpper(Console.ReadKey().KeyChar);
-                        Console.WriteLine();
-
-                        if (usarHabilidad == 'S')
-                        {
-                            UsarHabilidadZorro(i);
-                            fichasJugadores[i].CooldownActual = fichasJugadores[i].Cooldown; // Iniciar cooldown
-                        }
-                    }
-
-                    // Usar habilidad de la Vaca
-                    if (fichasJugadores[i].Nombre == "Vaca")
-                    {
-                        Console.Write("¿Deseas usar tu habilidad para destruir trampas? (S/N): ");
-                        char usarHabilidad = char.ToUpper(Console.ReadKey().KeyChar);
-                        Console.WriteLine();
-
-                        if (usarHabilidad == 'S')
-                        {
-                            UsarHabilidadVaca(i);
-                            fichasJugadores[i].CooldownActual = fichasJugadores[i].Cooldown; // Iniciar cooldown
-                        }
-                    }
-
-                    // Usar habilidad del Mono
-                    if (fichasJugadores[i].Nombre == "Mono")
-                    {
-                        Console.Write("¿Deseas usar tu habilidad para caminar 2 pasos extra? (S/N): ");
-                        char usarHabilidad = char.ToUpper(Console.ReadKey().KeyChar);
-                        Console.WriteLine();
-
-                        if (usarHabilidad == 'S')
-                        {
-                            movimientos += 2; // Añade 2 movimientos extra
-                            fichasJugadores[i].CooldownActual = fichasJugadores[i].Cooldown; // Iniciar cooldown
-                            Console.WriteLine($"¡{fichasJugadores[i].Nombre} usa su habilidad y ahora tiene {movimientos} movimientos!");
-                        }
-                    }
-
-                    // Usar habilidad del Koala
-                    if (fichasJugadores[i].Nombre == "Koala")
-                    {
-                        Console.Write("¿Deseas usar tu habilidad para paralizar a otro jugador? (S/N): ");
-                        char usarHabilidad = char.ToUpper(Console.ReadKey().KeyChar);
-                        Console.WriteLine();
-
-                        if (usarHabilidad == 'S')
-                        {
-                            UsarHabilidadKoala(i);
-                            fichasJugadores[i].CooldownActual = fichasJugadores[i].Cooldown; // Iniciar cooldown
-                        }
+                        UsarHabilidad(i);
+                        fichasJugadores[i].CooldownActual = fichasJugadores[i].Cooldown; // Activar cooldown
                     }
                 }
 
@@ -242,13 +226,14 @@ class MultiplayerMazeGame
                 // Movimientos del jugador
                 for (int j = 0; j < movimientos; j++)
                 {
-                    Console.Write("Movimiento (WASD): ");
-                    char move = char.ToUpper(Console.ReadKey().KeyChar);
-                    Console.WriteLine();
+                    AnsiConsole.MarkupLine($"[bold]Movimiento {j + 1} de {movimientos}[/]");
+                    AnsiConsole.MarkupLine("[bold]Usa las teclas W, A, S, D para moverte.[/]");
+
+                    char move = LeerTeclaMovimiento(); // Leer tecla presionada
 
                     if (MovePlayer(i, move))
                     {
-                        Console.WriteLine($"¡Jugador {i + 1} ha ganado!");
+                        AnsiConsole.MarkupLine($"[bold green]¡Jugador {i + 1} ha ganado![/]");
                         return;
                     }
 
@@ -257,17 +242,222 @@ class MultiplayerMazeGame
                     // Verificar si el jugador quedó paralizado después de moverse
                     if (fichasJugadores[i].EstaParalizado)
                     {
-                        Console.WriteLine($"¡{fichasJugadores[i].Nombre} está paralizado y pierde los movimientos restantes!");
+                        AnsiConsole.MarkupLine($"[bold red]¡{fichasJugadores[i].Nombre} está paralizado y pierde los movimientos restantes![/]");
                         break; // Terminar el bucle de movimientos
                     }
                 }
+            }
+        }
+    }
 
-                // Desactivar la habilidad de esquivar trampas al final del turno
-                if (fichasJugadores[i].Nombre == "Ardilla" && fichasJugadores[i].EsquivandoTrampas)
+    static void UsarHabilidad(int playerIndex)
+    {
+        switch (fichasJugadores[playerIndex].Nombre)
+        {
+            case "Capibara":
+                UsarHabilidadCapibara(playerIndex);
+                break;
+            case "Ardilla":
+                UsarHabilidadArdilla(playerIndex);
+                break;
+            case "Zorro":
+                UsarHabilidadZorro(playerIndex);
+                break;
+            case "Vaca":
+                UsarHabilidadVaca(playerIndex);
+                break;
+            case "Mono":
+                UsarHabilidadMono(playerIndex);
+                break;
+            case "Koala":
+                UsarHabilidadKoala(playerIndex);
+                break;
+        }
+    }
+
+    static void UsarHabilidadCapibara(int playerIndex)
+    {
+        var direccion = MostrarMenu("Dirección del túnel:", new[] { "W", "A", "S", "D" });
+
+        int dx = 0, dy = 0;
+        if (direccion == "W") dy = -1;
+        else if (direccion == "S") dy = 1;
+        else if (direccion == "A") dx = -1;
+        else if (direccion == "D") dx = 1;
+
+        int newX = players[playerIndex].x + dx;
+        int newY = players[playerIndex].y + dy;
+
+        if (newX >= 0 && newX < width && newY >= 0 && newY < height && maze[newY, newX] == '#')
+        {
+            maze[newY, newX] = ' '; // Abre un túnel
+            AnsiConsole.MarkupLine($"[bold green]¡{fichasJugadores[playerIndex].Nombre} ha cavado un túnel![/]");
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[bold red]No se puede cavar un túnel en esa dirección.[/]");
+        }
+    }
+
+    static void UsarHabilidadArdilla(int playerIndex)
+    {
+        fichasJugadores[playerIndex].EsquivandoTrampas = true; // Activar la habilidad
+        AnsiConsole.MarkupLine($"[bold green]¡{fichasJugadores[playerIndex].Nombre} activó su habilidad para esquivar trampas durante este turno![/]");
+    }
+
+    static void UsarHabilidadZorro(int playerIndex)
+    {
+        var opcion = MostrarMenu("Selecciona una ficha para mover:", GetNombresJugadores(playerIndex));
+
+        int index = Array.FindIndex(fichasJugadores, f => f.Nombre == opcion);
+        if (index >= 0 && index < numPlayers && index != playerIndex)
+        {
+            var direccion = MostrarMenu("Dirección del movimiento:", new[] { "W", "A", "S", "D" });
+
+            int dx = 0, dy = 0;
+            if (direccion == "W") dy = -1;
+            else if (direccion == "S") dy = 1;
+            else if (direccion == "A") dx = -1;
+            else if (direccion == "D") dx = 1;
+
+            int newX = players[index].x + dx;
+            int newY = players[index].y + dy;
+
+            if (newX >= 0 && newX < width && newY >= 0 && newY < height && maze[newY, newX] != '#')
+            {
+                char currentTile = maze[newY, newX];
+                players[index] = (newX, newY);
+
+                // Verificar si la ficha movida cayó en una trampa
+                if (Array.Exists(traps, t => t == currentTile))
                 {
-                    fichasJugadores[i].EsquivandoTrampas = false;
-                    Console.WriteLine($"¡{fichasJugadores[i].Nombre} ya no está esquivando trampas!");
+                    if (fichasJugadores[index].EsquivandoTrampas)
+                    {
+                        AnsiConsole.MarkupLine($"[bold green]¡{fichasJugadores[index].Nombre} esquiva una trampa![/]");
+                        maze[newY, newX] = ' '; // La trampa desaparece
+                    }
+                    else
+                    {
+                        // Aplicar efectos de las trampas si no está esquivando
+                        if (currentTile == 'T') // Trampa de teletransporte
+                        {
+                            AnsiConsole.MarkupLine($"[bold red]¡{fichasJugadores[index].Nombre} cayó en una trampa de teletransporte![/]");
+                            maze[newY, newX] = ' '; // La trampa desaparece
+                            players[index] = (1, 0); // Teletransporta al inicio
+                        }
+                        else if (currentTile == 'L') // Trampa de lodo
+                        {
+                            AnsiConsole.MarkupLine($"[bold red]¡{fichasJugadores[index].Nombre} está atrapado en lodo! Pierde los movimientos restantes y su próximo turno.[/]");
+                            maze[newY, newX] = ' '; // La trampa desaparece
+                            fichasJugadores[index].EstaParalizado = true; // El jugador pierde su siguiente turno
+                        }
+                        else if (currentTile == 'R') // Trampa de red
+                        {
+                            AnsiConsole.MarkupLine($"[bold red]¡{fichasJugadores[index].Nombre} cayó en una red! Su habilidad estará en cooldown por 3 turnos adicionales.[/]");
+                            maze[newY, newX] = ' '; // La trampa desaparece
+                            fichasJugadores[index].CooldownActual += 3; // Añade 3 turnos adicionales al cooldown
+                        }
+                    }
                 }
+
+                AnsiConsole.MarkupLine($"[bold green]¡{fichasJugadores[playerIndex].Nombre} ha movido a {fichasJugadores[index].Nombre}![/]");
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[bold red]Movimiento no válido.[/]");
+            }
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[bold red]Opción no válida.[/]");
+        }
+    }
+
+    static void UsarHabilidadVaca(int playerIndex)
+    {
+        var direccion = MostrarMenu("Dirección para destruir trampa:", new[] { "W", "A", "S", "D" });
+
+        int dx = 0, dy = 0;
+        if (direccion == "W") dy = -1;
+        else if (direccion == "S") dy = 1;
+        else if (direccion == "A") dx = -1;
+        else if (direccion == "D") dx = 1;
+
+        int playerX = players[playerIndex].x;
+        int playerY = players[playerIndex].y;
+
+        bool trampaDestruida = false;
+
+        // Recorrer 5 pasos en la dirección seleccionada
+        for (int paso = 1; paso <= 5; paso++)
+        {
+            int newX = playerX + dx * paso;
+            int newY = playerY + dy * paso;
+
+            if (newX >= 0 && newX < width && newY >= 0 && newY < height)
+            {
+                if (Array.Exists(traps, t => t == maze[newY, newX]))
+                {
+                    AnsiConsole.MarkupLine($"[bold green]¡{fichasJugadores[playerIndex].Nombre} ha destruido una trampa en ({newX}, {newY})![/]");
+                    maze[newY, newX] = ' '; // Elimina la trampa
+                    trampaDestruida = true;
+                    break; // Romper el bucle después de destruir la primera trampa
+                }
+            }
+            else
+            {
+                break; // Salir del bucle si se sale del tablero
+            }
+        }
+
+        if (!trampaDestruida)
+        {
+            AnsiConsole.MarkupLine("[bold red]No se encontró ninguna trampa en esa dirección.[/]");
+        }
+    }
+
+    static void UsarHabilidadMono(int playerIndex)
+    {
+        fichasJugadores[playerIndex].MovimientosExtra += 2; // Añade 2 movimientos extra
+        AnsiConsole.MarkupLine($"[bold green]¡{fichasJugadores[playerIndex].Nombre} usa su habilidad y ahora tiene {fichasJugadores[playerIndex].MovimientosExtra} movimientos extra![/]");
+    }
+
+    static void UsarHabilidadKoala(int playerIndex)
+    {
+        var opcion = MostrarMenu("Selecciona un jugador para paralizar:", GetNombresJugadores(playerIndex));
+
+        int index = Array.FindIndex(fichasJugadores, f => f.Nombre == opcion);
+        if (index >= 0 && index < numPlayers && index != playerIndex)
+        {
+            int distancia = Math.Abs(players[index].x - players[playerIndex].x) + Math.Abs(players[index].y - players[playerIndex].y);
+            if (distancia <= 5)
+            {
+                AnsiConsole.MarkupLine($"[bold green]¡{fichasJugadores[playerIndex].Nombre} ha paralizado a {fichasJugadores[index].Nombre}![/]");
+                fichasJugadores[index].EstaParalizado = true; // Marcar como paralizado
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[bold red]El jugador seleccionado está demasiado lejos.[/]");
+            }
+        }
+        else
+        {
+            AnsiConsole.MarkupLine("[bold red]Opción no válida.[/]");
+        }
+    }
+
+    static char LeerTeclaMovimiento()
+    {
+        while (true)
+        {
+            var key = Console.ReadKey(true).KeyChar.ToString().ToUpper()[0];
+            if (key == 'W' || key == 'A' || key == 'S' || key == 'D')
+            {
+                return key;
+            }
+            else
+            {
+                AnsiConsole.MarkupLine("[bold red]Tecla no válida. Usa W, A, S, D.[/]");
             }
         }
     }
@@ -291,7 +481,7 @@ class MultiplayerMazeGame
             // Verificar si la habilidad de esquivar trampas está activa
             if (fichasJugadores[playerIndex].EsquivandoTrampas && Array.Exists(traps, t => t == currentTile))
             {
-                Console.WriteLine($"¡{fichasJugadores[playerIndex].Nombre} esquiva una trampa!");
+                AnsiConsole.MarkupLine($"[bold green]¡{fichasJugadores[playerIndex].Nombre} esquiva una trampa![/]");
                 maze[newY, newX] = ' '; // La trampa desaparece
             }
             else
@@ -299,21 +489,21 @@ class MultiplayerMazeGame
                 // Aplicar efectos de las trampas si no está esquivando
                 if (currentTile == 'T') // Trampa de teletransporte
                 {
-                    Console.WriteLine($"¡{fichasJugadores[playerIndex].Nombre} cayó en una trampa de teletransporte!");
+                    AnsiConsole.MarkupLine($"[bold red]¡{fichasJugadores[playerIndex].Nombre} cayó en una trampa de teletransporte![/]");
                     maze[newY, newX] = ' '; // La trampa desaparece
                     players[playerIndex] = (1, 0); // Teletransporta al inicio
                     return false; // No termina el juego, solo aplica el efecto
                 }
                 else if (currentTile == 'L') // Trampa de lodo
                 {
-                    Console.WriteLine($"¡{fichasJugadores[playerIndex].Nombre} está atrapado en lodo! Pierde los movimientos restantes y su próximo turno.");
+                    AnsiConsole.MarkupLine($"[bold red]¡{fichasJugadores[playerIndex].Nombre} está atrapado en lodo! Pierde los movimientos restantes y su próximo turno.[/]");
                     maze[newY, newX] = ' '; // La trampa desaparece
                     fichasJugadores[playerIndex].EstaParalizado = true; // El jugador pierde su siguiente turno
                     return false; // No termina el juego, solo aplica el efecto
                 }
                 else if (currentTile == 'R') // Trampa de red
                 {
-                    Console.WriteLine($"¡{fichasJugadores[playerIndex].Nombre} cayó en una red! Su habilidad estará en cooldown por 3 turnos adicionales.");
+                    AnsiConsole.MarkupLine($"[bold red]¡{fichasJugadores[playerIndex].Nombre} cayó en una red! Su habilidad estará en cooldown por 3 turnos adicionales.[/]");
                     maze[newY, newX] = ' '; // La trampa desaparece
                     fichasJugadores[playerIndex].CooldownActual += 3; // Añade 3 turnos adicionales al cooldown
                     return false; // No termina el juego, solo aplica el efecto
@@ -341,172 +531,49 @@ class MultiplayerMazeGame
         {
             for (int x = 0; x < width; x++)
             {
-                Console.ForegroundColor = displayMaze[y, x] switch
+                char tile = displayMaze[y, x];
+                string color = tile switch
                 {
-                    'C' => ConsoleColor.Green,
-                    'A' => ConsoleColor.Yellow,
-                    'Z' => ConsoleColor.Red,
-                    'V' => ConsoleColor.Blue,
-                    'M' => ConsoleColor.DarkMagenta,
-                    'K' => ConsoleColor.DarkCyan,
-                    'T' => ConsoleColor.Magenta,
-                    'L' => ConsoleColor.DarkYellow,
-                    'R' => ConsoleColor.DarkGray,
-                    'E' => ConsoleColor.Cyan,
-                    _ => ConsoleColor.White
+                    'C' => "green",
+                    'A' => "yellow",
+                    'Z' => "red",
+                    'V' => "blue",
+                    'M' => "purple",
+                    'K' => "cyan",
+                    'T' => "magenta",
+                    'L' => "olive",
+                    'R' => "grey",
+                    'E' => "aqua",
+                    _ => "white"
                 };
-                Console.Write(displayMaze[y, x] + " ");
+                AnsiConsole.Markup($"[{color}]{tile}[/] ");
             }
-            Console.WriteLine();
-        }
-        Console.ResetColor();
-    }
-
-    // Métodos para las habilidades
-    static void UsarHabilidadCapibara(int playerIndex)
-    {
-        Console.Write("Dirección del túnel (WASD): ");
-        char direccion = char.ToUpper(Console.ReadKey().KeyChar);
-        Console.WriteLine();
-
-        int dx = 0, dy = 0;
-        if (direccion == 'W') dy = -1;
-        else if (direccion == 'S') dy = 1;
-        else if (direccion == 'A') dx = -1;
-        else if (direccion == 'D') dx = 1;
-
-        int newX = players[playerIndex].x + dx;
-        int newY = players[playerIndex].y + dy;
-
-        if (newX >= 0 && newX < width && newY >= 0 && newY < height && maze[newY, newX] == '#')
-        {
-            maze[newY, newX] = ' '; // Abre un túnel
-            Console.WriteLine($"¡{fichasJugadores[playerIndex].Nombre} ha cavado un túnel!");
-        }
-        else
-        {
-            Console.WriteLine("No se puede cavar un túnel en esa dirección.");
+            AnsiConsole.WriteLine();
         }
     }
 
-    static void UsarHabilidadZorro(int playerIndex)
+    // Método auxiliar para mostrar menús
+    static string MostrarMenu(string titulo, string[] opciones)
     {
-        Console.WriteLine("Selecciona una ficha para mover:");
+        return AnsiConsole.Prompt(
+            new SelectionPrompt<string>()
+                .Title(titulo)
+                .PageSize(Math.Max(3, opciones.Length)) // Asegura que el PageSize sea al menos 3
+                .AddChoices(opciones)
+        );
+    }
+
+    static string[] GetNombresJugadores(int excludeIndex)
+    {
+        var nombres = new System.Collections.Generic.List<string>();
         for (int i = 0; i < numPlayers; i++)
         {
-            if (i != playerIndex)
+            if (i != excludeIndex)
             {
-                Console.WriteLine($"{i + 1}. Jugador {i + 1} ({fichasJugadores[i].Nombre})");
+                nombres.Add(fichasJugadores[i].Nombre);
             }
         }
-
-        int opcion = int.Parse(Console.ReadLine()) - 1;
-        if (opcion >= 0 && opcion < numPlayers && opcion != playerIndex)
-        {
-            Console.Write("Dirección del movimiento (WASD): ");
-            char direccion = char.ToUpper(Console.ReadKey().KeyChar);
-            Console.WriteLine();
-
-            int dx = 0, dy = 0;
-            if (direccion == 'W') dy = -1;
-            else if (direccion == 'S') dy = 1;
-            else if (direccion == 'A') dx = -1;
-            else if (direccion == 'D') dx = 1;
-
-            int newX = players[opcion].x + dx;
-            int newY = players[opcion].y + dy;
-
-            if (newX >= 0 && newX < width && newY >= 0 && newY < height && maze[newY, newX] != '#')
-            {
-                players[opcion] = (newX, newY);
-                Console.WriteLine($"¡{fichasJugadores[playerIndex].Nombre} ha movido a {fichasJugadores[opcion].Nombre}!");
-            }
-            else
-            {
-                Console.WriteLine("Movimiento no válido.");
-            }
-        }
-        else
-        {
-            Console.WriteLine("Opción no válida.");
-        }
-    }
-
-    static void UsarHabilidadVaca(int playerIndex)
-    {
-        Console.Write("Dirección para destruir trampa (WASD): ");
-        char direccion = char.ToUpper(Console.ReadKey().KeyChar);
-        Console.WriteLine();
-
-        int dx = 0, dy = 0;
-        if (direccion == 'W') dy = -1;
-        else if (direccion == 'S') dy = 1;
-        else if (direccion == 'A') dx = -1;
-        else if (direccion == 'D') dx = 1;
-
-        int playerX = players[playerIndex].x;
-        int playerY = players[playerIndex].y;
-
-        bool trampaDestruida = false;
-
-        // Recorrer 5 pasos en la dirección seleccionada
-        for (int paso = 1; paso <= 5; paso++)
-        {
-            int newX = playerX + dx * paso;
-            int newY = playerY + dy * paso;
-
-            if (newX >= 0 && newX < width && newY >= 0 && newY < height)
-            {
-                if (Array.Exists(traps, t => t == maze[newY, newX]))
-                {
-                    Console.WriteLine($"¡{fichasJugadores[playerIndex].Nombre} ha destruido una trampa en ({newX}, {newY})!");
-                    maze[newY, newX] = ' '; // Elimina la trampa
-                    trampaDestruida = true;
-                    break; // Romper el bucle después de destruir la primera trampa
-                }
-            }
-            else
-            {
-                break; // Salir del bucle si se sale del tablero
-            }
-        }
-
-        if (!trampaDestruida)
-        {
-            Console.WriteLine("No se encontró ninguna trampa en esa dirección.");
-        }
-    }
-
-    static void UsarHabilidadKoala(int playerIndex)
-    {
-        Console.WriteLine("Selecciona un jugador para paralizar:");
-        for (int i = 0; i < numPlayers; i++)
-        {
-            if (i != playerIndex)
-            {
-                int distancia = Math.Abs(players[i].x - players[playerIndex].x) + Math.Abs(players[i].y - players[playerIndex].y);
-                Console.WriteLine($"{i + 1}. Jugador {i + 1} ({fichasJugadores[i].Nombre}) - Distancia: {distancia}");
-            }
-        }
-
-        int opcion = int.Parse(Console.ReadLine()) - 1;
-        if (opcion >= 0 && opcion < numPlayers && opcion != playerIndex)
-        {
-            int distancia = Math.Abs(players[opcion].x - players[playerIndex].x) + Math.Abs(players[opcion].y - players[playerIndex].y);
-            if (distancia <= 5)
-            {
-                Console.WriteLine($"¡{fichasJugadores[playerIndex].Nombre} ha paralizado a {fichasJugadores[opcion].Nombre}!");
-                fichasJugadores[opcion].EstaParalizado = true; // Marcar como paralizado
-            }
-            else
-            {
-                Console.WriteLine("El jugador seleccionado está demasiado lejos.");
-            }
-        }
-        else
-        {
-            Console.WriteLine("Opción no válida.");
-        }
+        return nombres.ToArray();
     }
 }
 
@@ -519,6 +586,7 @@ public class Ficha
     public int CooldownActual { get; set; } // Cooldown restante
     public bool EstaParalizado { get; set; }
     public bool EsquivandoTrampas { get; set; } // Nueva propiedad
+    public int MovimientosExtra { get; set; } // Movimientos extra para el Mono
 
     public Ficha(char icono, string nombre, string habilidad, int cooldown)
     {
@@ -529,5 +597,6 @@ public class Ficha
         CooldownActual = 0; // Inicialmente, la habilidad está disponible
         EstaParalizado = false;
         EsquivandoTrampas = false; // Inicialmente, no está esquivando trampas
+        MovimientosExtra = 0; // Inicialmente, no tiene movimientos extra
     }
 }
