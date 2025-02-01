@@ -62,11 +62,14 @@ class MultiplayerMazeGame
         );
 
         // Contenido de la historia
-        AnsiConsole.MarkupLine("[bold]En un bosque lleno de vida, animales como capibaras, ardillas, zorros y vacas viven felices.[/]");
-        AnsiConsole.MarkupLine("[bold]Sin embargo, los humanos están destruyendo su hábitat natural.[/]");
-        AnsiConsole.MarkupLine("[bold]Los animales deben escapar del laberinto antes de que sea demasiado tarde.[/]");
-        AnsiConsole.MarkupLine("[bold]¡Únete a la aventura y ayuda a estos animales a encontrar la salida![/]");
-
+        AnsiConsole.MarkupLine("[bold]Pocos notan q son una parte mas de la vida una muy importante...[/]");
+        AnsiConsole.MarkupLine("[bold]pero todos notaremos su ausencia cuando falte...[/]");
+        AnsiConsole.MarkupLine("[bold]este no es un bosque especial es solo uno normal y corriente[/]");
+        AnsiConsole.MarkupLine("[bold]uno de esos que cada dia el hombre arruina con sus estupideces.[/]");
+        AnsiConsole.MarkupLine("[bold]porque es lo unico q sabe hacer, aunque espero que tu seas diferente.[/]");
+        AnsiConsole.MarkupLine("[bold]ayuda a marcar una diferencia, demuestra q este mundo no esta perdido.[/]");
+        AnsiConsole.MarkupLine("[bold]ayuda a estos animales a salir del este laberinto para q puedan seguir viviendo.[/]");
+        AnsiConsole.MarkupLine("[bold]para que logren espacar del hombre q esta destuyendo su habitad.[/]");
         // Botón para volver al menú
         AnsiConsole.MarkupLine("\n[bold yellow]Presione cualquier tecla para volver al menú principal...[/]");
         Console.ReadKey();
